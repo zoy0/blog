@@ -1,0 +1,254 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>云服务器如何挂载磁盘 | lazysun</title><meta name="author" content="lazysun"><meta name="copyright" content="lazysun"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="云服务器挂载磁盘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="云服务器如何挂载磁盘">
+<meta property="og:url" content="https://lazysun.me/p/523.html">
+<meta property="og:site_name" content="lazysun">
+<meta property="og:description" content="云服务器挂载磁盘">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.lazysun.me/202302202057344.png">
+<meta property="article:published_time" content="2023-02-20T20:27:19.000Z">
+<meta property="article:modified_time" content="2023-02-20T12:27:19.000Z">
+<meta property="article:author" content="lazysun">
+<meta property="article:tag" content="运维">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.lazysun.me/202302202057344.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://lazysun.me/p/523"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://fastly.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://fastly.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '云服务器如何挂载磁盘',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-02-20 12:27:19'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/hmbb.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://img.lazysun.me/202302202106961.jpeg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">lazysun</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">云服务器如何挂载磁盘</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-02-20T20:27:19.000Z" title="发表于 2023-02-20 20:27:19">2023-02-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-02-20T12:27:19.000Z" title="更新于 2023-02-20 12:27:19">2023-02-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BD%AC%E8%BD%BD/">转载</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="云服务器如何挂载磁盘"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>我这边有台云服务器，属于华为云，由于当时购买服务器的时候，忘了买数据盘，所以数据都放在了系统盘，但是随着服务的增多，以及每个服务产生的数据的增多，系统盘已经快撑爆了。所以最近购买了数据盘，但是问题来了，数据盘买了，如何使用呢？如何分区？如何挂载目录？本文瑞哥将用亲身实战经历带大家见识一下，如果在看的小伙伴最近有这块的业务和需求可以好好看下，有任何问题可以在文章末尾的讨论区与我讨论，让我们直接开始。</p>
+<h2 id="查询数据盘"><a href="#查询数据盘" class="headerlink" title="查询数据盘"></a>查询数据盘</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">fdisk</span> <span class="token parameter variable">-l</span> <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>输出：</p>
+<pre class="line-numbers language-none"><code class="language-none">Disk &#x2F;dev&#x2F;sda: 80 GiB, 85899345920 bytes, 167772160 sectors
+Disk model: VBS fileIO
+Units: sectors of 1 * 512 &#x3D; 512 bytes
+Sector size (logical&#x2F;physical): 512 bytes &#x2F; 512 bytes
+I&#x2F;O size (minimum&#x2F;optimal): 512 bytes &#x2F; 512 bytes
+Disklabel type: dos
+Disk identifier: 0xe29a7a02
+
+Device     Boot Start       End   Sectors Size Id Type
+&#x2F;dev&#x2F;sda1  *     2048 167772126 167770079  80G 83 Linux
+
+
+Disk &#x2F;dev&#x2F;sdb: 100 GiB, 107374182400 bytes, 209715200 sectors
+Disk model: VBS fileIO
+Units: sectors of 1 * 512 &#x3D; 512 bytes
+Sector size (logical&#x2F;physical): 512 bytes &#x2F; 512 bytes
+I&#x2F;O size (minimum&#x2F;optimal): 512 bytes &#x2F; 512 bytes <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>由输出可知，这台全裸的云服务器有两个数据盘，分别为：</p>
+<ul>
+<li>&#x2F;dev&#x2F;sda：80 GiB</li>
+<li>&#x2F;dev&#x2F;sdb：100 GiB</li>
+</ul>
+<p>&#x2F;dev&#x2F;sda为系统盘，&#x2F;dev&#x2F;sdb为数据盘，这里我们肯定是要对数据盘进行分区的，系统盘千万不要乱用，否则就会很难受，就像我们之前的服务器：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">root@wljslmz:~<span class="token comment"># df -lh</span>
+Filesystem      Size  Used Avail Use% Mounted on
+udev             16G     <span class="token number">0</span>   16G   <span class="token number">0</span>% /dev
+tmpfs           <span class="token number">3</span>.1G   34M  <span class="token number">3</span>.1G   <span class="token number">2</span>% /run
+/dev/sda1        79G   71G  <span class="token number">4</span>.5G  <span class="token number">95</span>% /
+tmpfs            16G     <span class="token number">0</span>   16G   <span class="token number">0</span>% /dev/shm
+tmpfs           <span class="token number">5</span>.0M  <span class="token number">4</span>.0K  <span class="token number">5</span>.0M   <span class="token number">1</span>% /run/lock
+tmpfs            16G     <span class="token number">0</span>   16G   <span class="token number">0</span>% /sys/fs/cgroup
+tmpfs           <span class="token number">3</span>.1G     <span class="token number">0</span>  <span class="token number">3</span>.1G   <span class="token number">0</span>% /run/user/0
+/dev/sdb1        98G   18G   76G  <span class="token number">19</span>% /data
+overlay          79G   71G  <span class="token number">4</span>.5G  <span class="token number">95</span>% /var/lib/docker/overlay2/2edf748d6f23e9939e0566bc197a1bcd6c6d877b409fecdfc87a6e7596526fe9/merged <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>可以看到之前的服务器系统盘直接干到了95%，不出意外的撑不过这周末。所以把原服务器系统盘数据迁移迫在眉睫！！！</p>
+<p>那有朋友问了，为啥不对原服务器的系统盘进行扩容？</p>
+<p>其实也是可以的，但是系统盘扩容贵不说，主要我新申请的服务器本身就是做容灾处理，正好借此机会迁移一下，原服务器后面就只放nginx和前端、以及部分Python相关的服务了。</p>
+<p>言归正传，我们还是回到如何挂载和初始化磁盘的话题上。</p>
+<h3 id="数据盘分区"><a href="#数据盘分区" class="headerlink" title="数据盘分区"></a>数据盘分区</h3><p>执行命令：</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">fdisk</span> /dev/sdb <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>对<code>/dev/sdb</code>磁盘进行分区：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/53ebdd307aaf4c90acdc7b84b0f98fe6~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image"></p>
+<p>由图可知，已经进入分区界面。</p>
+<h3 id="输入n"><a href="#输入n" class="headerlink" title="输入n"></a>输入n</h3><p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0e9b12073bbe412da4e60cdf578b9af3~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image"></p>
+<p>此时会出现两个选择：</p>
+<ul>
+<li>p：主分区</li>
+<li>e：扩展分区</li>
+</ul>
+<p>这个时候我们选择主分区。</p>
+<h3 id="输入p"><a href="#输入p" class="headerlink" title="输入p"></a>输入p</h3><p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/19f2230a212e481ea1ed07ea0cf73920~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image"></p>
+<p>此时出现的是想设置几个分区，范围是1-4，我们默认选择就一个分区吧，简单点，直接回车就好，然后下面的每一步都直接回车，直接创建好后提示：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3dd7e1430ac24542a9fdacbb0e9f2e5a~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image"></p>
+<p>这个时候就看了我们创建了一个新的分区，大小为100G。</p>
+<h3 id="输入p-1"><a href="#输入p-1" class="headerlink" title="输入p"></a>输入p</h3><p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ff8824ebc46347e7966866d6d6a6835a~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image"></p>
+<p>我们看到了新建的分区的详细信息。</p>
+<h3 id="输入w"><a href="#输入w" class="headerlink" title="输入w"></a>输入w</h3><p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0a04b639a5a6445d89a1c2144e3d2dc7~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image"></p>
+<p>我们看到已经将分区结果写入分区表中了。</p>
+<p>最后再执行命令：<code>partprobe</code>将新的分区表变更同步至操作系统。</p>
+<p>到此分区就搞定了，下面进入格式化磁盘步骤。</p>
+<h2 id="格式化磁盘"><a href="#格式化磁盘" class="headerlink" title="格式化磁盘"></a>格式化磁盘</h2><p>只需执行命令：</p>
+<pre class="line-numbers language-none"><code class="language-none">mkfs -t ext4 &#x2F;dev&#x2F;sdb <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1a5878f95e9748c797e8240a7f2463aa~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image"></p>
+<p>直接输入“y”：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/54002a3931864c6b82a977acfca293a8~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image"></p>
+<p>直接格式化磁盘也完成了，下面就进入挂载磁盘步骤了。</p>
+<h2 id="挂载磁盘"><a href="#挂载磁盘" class="headerlink" title="挂载磁盘"></a>挂载磁盘</h2><p>在挂载前，我先看下数据盘到底有没有被挂载，执行以下命令：</p>
+<pre class="line-numbers language-none"><code class="language-none">df -h <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b187763e82eb4985abff501df8582b14~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image"></p>
+<p>可以看到只有系统盘&#x2F;dev&#x2F;sda1被挂载到了&#x2F;路径，并没有看到&#x2F;dev&#x2F;sdb数据盘的影子。</p>
+<p>所以接下来，就开始挂载数据盘吧。</p>
+<h3 id="新建挂载目录"><a href="#新建挂载目录" class="headerlink" title="新建挂载目录"></a>新建挂载目录</h3><p>执行命令：</p>
+<pre class="line-numbers language-none"><code class="language-none">mkdir &#x2F;data <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>新建&#x2F;data目录，用来挂载数据盘。</p>
+<h3 id="挂载目录"><a href="#挂载目录" class="headerlink" title="挂载目录"></a>挂载目录</h3><p>执行命令：</p>
+<pre class="line-numbers language-none"><code class="language-none">mount &#x2F;dev&#x2F;sdb &#x2F;data <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/43a1f92d016c4128862176b3ca62d5ff~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image"></p>
+<p>再执行命令：</p>
+<pre class="line-numbers language-none"><code class="language-none">df -TH <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d236e4daffe2447fa347b95278d64031~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image"></p>
+<p>可以清晰的看到，我们的数据盘已经成功挂载到了&#x2F;data目录。</p>
+<p>至此挂载也完成了，但是，千万别忘了做最后一件事，那就是将分区挂载写入fstab文件，防止主机重启后分区丢失的问题！</p>
+<h2 id="持久化fstab文件"><a href="#持久化fstab文件" class="headerlink" title="持久化fstab文件"></a>持久化fstab文件</h2><p>执行命令：</p>
+<pre class="line-numbers language-none"><code class="language-none">blkid &#x2F;dev&#x2F;sdb <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f004a3f4d3014335b2e854b05c261519~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image"></p>
+<p>可以查看到&#x2F;dev&#x2F;sdb的唯一编号，我们需要将这个唯一编号写入到fstab文件。</p>
+<p>执行命令：</p>
+<pre class="line-numbers language-none"><code class="language-none">vim &#x2F;etc&#x2F;fstab <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>输入以下条目：</p>
+<pre class="line-numbers language-none"><code class="language-none">UUID&#x3D;f3f1c505-66a6-4e0c-bfde-7625e3abc551 &#x2F;data                ext4    defaults        0 2 <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f50e56a5930747b994aa2157cf6d2ff9~tplv-k3u1fbpfcp-zoom-in-crop-mark:4536:0:0:0.image"></p>
+<p>保存即可。</p>
+<p>至此所有工作大功告成！</p>
+<p>本文转自 <a target="_blank" rel="noopener" href="https://juejin.cn/post/7201334455058530364">https://juejin.cn/post/7201334455058530364</a>，如有侵权，请联系删除。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://lazysun.me">lazysun</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://lazysun.me/p/523.html">https://lazysun.me/p/523.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://lazysun.me" target="_blank">lazysun</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E8%BF%90%E7%BB%B4/">运维</a></div><div class="post_share"><div class="social-share" data-image="https://img.lazysun.me/202302202057344.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://fastly.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/p/f7b9.html"><img class="prev-cover" src="https://img.lazysun.me/202302280006395.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">记录一次磁盘不足的问题</div></div></a></div><div class="next-post pull-right"><a href="/p/f651.html"><img class="next-cover" src="https://img.lazysun.me/202302152351031.jpeg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">服务器监控系统</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/p/f7b9.html" title="记录一次磁盘不足的问题"><img class="cover" src="https://img.lazysun.me/202302280006395.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-28</div><div class="title">记录一次磁盘不足的问题</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/hmbb.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">lazysun</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/zoy0"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">本来无一物，何处惹尘埃</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E6%95%B0%E6%8D%AE%E7%9B%98"><span class="toc-number">1.</span> <span class="toc-text">查询数据盘</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%9B%98%E5%88%86%E5%8C%BA"><span class="toc-number">1.1.</span> <span class="toc-text">数据盘分区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BE%93%E5%85%A5n"><span class="toc-number">1.2.</span> <span class="toc-text">输入n</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BE%93%E5%85%A5p"><span class="toc-number">1.3.</span> <span class="toc-text">输入p</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BE%93%E5%85%A5p-1"><span class="toc-number">1.4.</span> <span class="toc-text">输入p</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BE%93%E5%85%A5w"><span class="toc-number">1.5.</span> <span class="toc-text">输入w</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%BC%E5%BC%8F%E5%8C%96%E7%A3%81%E7%9B%98"><span class="toc-number">2.</span> <span class="toc-text">格式化磁盘</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%82%E8%BD%BD%E7%A3%81%E7%9B%98"><span class="toc-number">3.</span> <span class="toc-text">挂载磁盘</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B0%E5%BB%BA%E6%8C%82%E8%BD%BD%E7%9B%AE%E5%BD%95"><span class="toc-number">3.1.</span> <span class="toc-text">新建挂载目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%82%E8%BD%BD%E7%9B%AE%E5%BD%95"><span class="toc-number">3.2.</span> <span class="toc-text">挂载目录</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96fstab%E6%96%87%E4%BB%B6"><span class="toc-number">4.</span> <span class="toc-text">持久化fstab文件</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/p/5180.html" title="RabbitMq知识集锦"><img src="https://img.lazysun.me/202307301446894.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="RabbitMq知识集锦"/></a><div class="content"><a class="title" href="/p/5180.html" title="RabbitMq知识集锦">RabbitMq知识集锦</a><time datetime="2023-09-14T12:50:22.000Z" title="发表于 2023-09-14 12:50:22">2023-09-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/p/ddc4.html" title="grafana告警"><img src="https://img.lazysun.me/202307301446894.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="grafana告警"/></a><div class="content"><a class="title" href="/p/ddc4.html" title="grafana告警">grafana告警</a><time datetime="2023-07-30T12:17:58.000Z" title="发表于 2023-07-30 12:17:58">2023-07-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/p/f7b9.html" title="记录一次磁盘不足的问题"><img src="https://img.lazysun.me/202302280006395.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="记录一次磁盘不足的问题"/></a><div class="content"><a class="title" href="/p/f7b9.html" title="记录一次磁盘不足的问题">记录一次磁盘不足的问题</a><time datetime="2023-02-28T00:00:23.000Z" title="发表于 2023-02-28 00:00:23">2023-02-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/p/523.html" title="云服务器如何挂载磁盘"><img src="https://img.lazysun.me/202302202057344.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="云服务器如何挂载磁盘"/></a><div class="content"><a class="title" href="/p/523.html" title="云服务器如何挂载磁盘">云服务器如何挂载磁盘</a><time datetime="2023-02-20T20:27:19.000Z" title="发表于 2023-02-20 20:27:19">2023-02-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/p/f651.html" title="服务器监控系统"><img src="https://img.lazysun.me/202302152351031.jpeg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="服务器监控系统"/></a><div class="content"><a class="title" href="/p/f651.html" title="服务器监控系统">服务器监控系统</a><time datetime="2023-02-15T22:50:31.000Z" title="发表于 2023-02-15 22:50:31">2023-02-15</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By lazysun</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://fastly.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

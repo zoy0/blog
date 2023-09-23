@@ -1,0 +1,286 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>grafana告警 | lazysun</title><meta name="author" content="lazysun"><meta name="copyright" content="lazysun"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="设置日志，服务器资源告警">
+<meta property="og:type" content="article">
+<meta property="og:title" content="grafana告警">
+<meta property="og:url" content="https://lazysun.me/p/ddc4.html">
+<meta property="og:site_name" content="lazysun">
+<meta property="og:description" content="设置日志，服务器资源告警">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.lazysun.me/202307301446894.png">
+<meta property="article:published_time" content="2023-07-30T12:17:58.000Z">
+<meta property="article:modified_time" content="2023-09-23T01:11:28.390Z">
+<meta property="article:author" content="lazysun">
+<meta property="article:tag" content="deploy">
+<meta property="article:tag" content="prometheus">
+<meta property="article:tag" content="日志">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.lazysun.me/202307301446894.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://lazysun.me/p/ddc4"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://fastly.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://fastly.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'grafana告警',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-09-23 01:11:28'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/hmbb.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://img.lazysun.me/202307301447764.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">lazysun</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">grafana告警</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-07-30T12:17:58.000Z" title="发表于 2023-07-30 12:17:58">2023-07-30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-09-23T01:11:28.390Z" title="更新于 2023-09-23 01:11:28">2023-09-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/tasks/">tasks</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="grafana告警"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Grafana告警"><a href="#Grafana告警" class="headerlink" title="Grafana告警"></a>Grafana告警</h1><p>继 <a href="https://lazysun.me/p/f651.html">服务器监控系统 | lazysun</a> ，这次需要设置告警，提前预警可能出现的错误。</p>
+<h2 id="docker安装node-exporter，node-exporter，cadvisor"><a href="#docker安装node-exporter，node-exporter，cadvisor" class="headerlink" title="docker安装node-exporter，node-exporter，cadvisor"></a>docker安装node-exporter，node-exporter，cadvisor</h2><p>docker-compose.yaml</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token key atrule">networks</span><span class="token punctuation">:</span>
+  <span class="token key atrule">monitoring</span><span class="token punctuation">:</span>
+    <span class="token key atrule">driver</span><span class="token punctuation">:</span> bridge
+
+<span class="token key atrule">services</span><span class="token punctuation">:</span>
+  <span class="token key atrule">node-exporter</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> prom/node<span class="token punctuation">-</span>exporter<span class="token punctuation">:</span>latest
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> node<span class="token punctuation">-</span>exporter
+    <span class="token key atrule">restart</span><span class="token punctuation">:</span> unless<span class="token punctuation">-</span>stopped
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> /proc<span class="token punctuation">:</span>/host/proc<span class="token punctuation">:</span>ro
+      <span class="token punctuation">-</span> /sys<span class="token punctuation">:</span>/host/sys<span class="token punctuation">:</span>ro
+      <span class="token punctuation">-</span> /<span class="token punctuation">:</span>/rootfs<span class="token punctuation">:</span>ro
+    <span class="token key atrule">command</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token string">'--path.procfs=/host/proc'</span>
+      <span class="token punctuation">-</span> <span class="token string">'--path.rootfs=/rootfs'</span>
+      <span class="token punctuation">-</span> <span class="token string">'--path.sysfs=/host/sys'</span>
+      <span class="token punctuation">-</span> <span class="token string">'--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'</span>
+    <span class="token key atrule">expose</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token number">9100</span>
+    <span class="token key atrule">networks</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> monitoring
+
+  <span class="token key atrule">node-exporter</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> prom/prometheus<span class="token punctuation">:</span>latest
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> prometheus
+    <span class="token key atrule">restart</span><span class="token punctuation">:</span> unless<span class="token punctuation">-</span>stopped
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token string">'8003:9090'</span>
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> ./prometheus.yml<span class="token punctuation">:</span>/etc/prometheus/prometheus.yml
+      <span class="token punctuation">-</span> ./prometheus_data<span class="token punctuation">:</span>/prometheus
+    <span class="token key atrule">command</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token string">'--config.file=/etc/prometheus/prometheus.yml'</span>
+      <span class="token punctuation">-</span> <span class="token string">'--storage.tsdb.path=/prometheus'</span>
+      <span class="token punctuation">-</span> <span class="token string">'--web.console.libraries=/etc/prometheus/console_libraries'</span>
+      <span class="token punctuation">-</span> <span class="token string">'--web.console.templates=/etc/prometheus/consoles'</span>
+      <span class="token punctuation">-</span> <span class="token string">'--web.enable-lifecycle'</span>
+    <span class="token key atrule">expose</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token number">9090</span>
+    <span class="token key atrule">networks</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> monitoring
+
+  <span class="token key atrule">cadvisor</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> google/cadvisor<span class="token punctuation">:</span>latest
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> cadvisor
+    <span class="token key atrule">restart</span><span class="token punctuation">:</span> unless<span class="token punctuation">-</span>stopped
+    <span class="token key atrule">expose</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token number">8080</span>
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> /<span class="token punctuation">:</span>/rootfs<span class="token punctuation">:</span>ro
+      <span class="token punctuation">-</span> /var/run<span class="token punctuation">:</span>/var/run<span class="token punctuation">:</span>rw
+      <span class="token punctuation">-</span> /sys<span class="token punctuation">:</span>/sys<span class="token punctuation">:</span>ro
+      <span class="token punctuation">-</span> /var/lib/docker/<span class="token punctuation">:</span>/var/lib/docker<span class="token punctuation">:</span>ro
+    <span class="token key atrule">networks</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> monitoring<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>prometheus.yaml</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token comment"># my global config</span>
+<span class="token key atrule">global</span><span class="token punctuation">:</span>
+  <span class="token key atrule">scrape_interval</span><span class="token punctuation">:</span> 15s <span class="token comment"># Set the scrape interval to every 15 seconds. Default is every 1 minute.</span>
+  <span class="token key atrule">evaluation_interval</span><span class="token punctuation">:</span> 15s <span class="token comment"># Evaluate rules every 15 seconds. The default is every 1 minute.</span>
+  <span class="token comment"># scrape_timeout is set to the global default (10s).</span>
+
+<span class="token comment"># Alertmanager configuration</span>
+<span class="token key atrule">alerting</span><span class="token punctuation">:</span>
+  <span class="token key atrule">alertmanagers</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> <span class="token key atrule">static_configs</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">targets</span><span class="token punctuation">:</span>
+          <span class="token comment"># - alertmanager:9093</span>
+
+<span class="token comment"># Load rules once and periodically evaluate them according to the global 'evaluation_interval'.</span>
+<span class="token key atrule">rule_files</span><span class="token punctuation">:</span>
+  <span class="token comment"># - "first_rules.yml"</span>
+  <span class="token comment"># - "second_rules.yml"</span>
+
+<span class="token comment"># A scrape configuration containing exactly one endpoint to scrape:</span>
+<span class="token comment"># Here it's Prometheus itself.</span>
+<span class="token key atrule">scrape_configs</span><span class="token punctuation">:</span>
+  <span class="token comment"># The job name is added as a label `job=&lt;job_name>` to any timeseries scraped from this config.</span>
+  <span class="token punctuation">-</span> <span class="token key atrule">job_name</span><span class="token punctuation">:</span> <span class="token string">"prometheus"</span>
+
+    <span class="token comment"># metrics_path defaults to '/metrics'</span>
+    <span class="token comment"># scheme defaults to 'http'.</span>
+
+    <span class="token key atrule">static_configs</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token key atrule">targets</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"localhost:9090"</span><span class="token punctuation">,</span><span class="token string">"node-exporter:9100"</span><span class="token punctuation">,</span><span class="token string">"cadvisor:8080"</span><span class="token punctuation">]</span>
+    <span class="token comment"># 这个是将instance设置为主机名，否则instance会变成"localhost:9090","node-exporter:9100","cadvisor:8080"，很不直观</span>
+    <span class="token key atrule">relabel_configs</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> <span class="token key atrule">source_labels</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>__address__<span class="token punctuation">]</span>
+      <span class="token key atrule">regex</span><span class="token punctuation">:</span> <span class="token string">'.*'</span>
+      <span class="token key atrule">target_label</span><span class="token punctuation">:</span> instance
+      <span class="token key atrule">replacement</span><span class="token punctuation">:</span> <span class="token string">'主机名'</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>之后设置grafana收集prometheus指标即可</p>
+<h2 id="grafana仪表盘"><a href="#grafana仪表盘" class="headerlink" title="grafana仪表盘"></a>grafana仪表盘</h2><p>node-exporter推荐: 12385 , 1860</p>
+<p>cadvisor推荐：193</p>
+<p>loki: 自定义</p>
+<h2 id="grafana设置告警信息"><a href="#grafana设置告警信息" class="headerlink" title="grafana设置告警信息"></a>grafana设置告警信息</h2><p>因为我在grafana9.3版本没有找到设置message的字段，所以选择在annotations中加入重要信息解析，然后用webhook发送到转发中间件，再发送到飞书(后面一些原因我将grafana升级到10版本以上后发现有message了)</p>
+<h3 id="日志告警"><a href="#日志告警" class="headerlink" title="日志告警"></a>日志告警</h3><p>使用正则表达式提取日志重要信息</p>
+<p>springboot应用日志格式如下:</p>
+<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token number">2023</span><span class="token operator">-</span><span class="token number">07</span><span class="token operator">-</span><span class="token number">30</span> <span class="token number">12</span><span class="token operator">:</span><span class="token number">31</span><span class="token operator">:</span><span class="token number">23.826</span> <span class="token constant">ERROR</span> <span class="token number">6</span> <span class="token operator">--</span><span class="token operator">-</span> <span class="token punctuation">[</span><span class="token number">127.0</span><span class="token number">.0</span><span class="token number">.1</span><span class="token operator">:</span><span class="token number">5672</span><span class="token punctuation">]</span> <span class="token class-name"><span class="token namespace">o<span class="token punctuation">.</span>s<span class="token punctuation">.</span>a<span class="token punctuation">.</span>r<span class="token punctuation">.</span>c<span class="token punctuation">.</span></span>CachingConnectionFactory</span>       <span class="token operator">:</span> <span class="token class-name">Channel</span> shutdown<span class="token operator">:</span> channel error<span class="token punctuation">;</span> protocol method<span class="token operator">:</span> #method<span class="token generics"><span class="token punctuation">&lt;</span>channel<span class="token punctuation">.</span>close<span class="token punctuation">></span></span><span class="token punctuation">(</span>reply<span class="token operator">-</span>code<span class="token operator">=</span><span class="token number">406</span><span class="token punctuation">,</span> reply<span class="token operator">-</span>text<span class="token operator">=</span><span class="token constant">PRECONDITION_FAILED</span> <span class="token operator">-</span> delivery acknowledgement on channel <span class="token number">344</span> timed <span class="token class-name"><span class="token namespace">out<span class="token punctuation">.</span></span> Timeout</span> value used<span class="token operator">:</span> <span class="token number">1800000</span> <span class="token class-name"><span class="token namespace">ms<span class="token punctuation">.</span></span> This</span> timeout value can be configured<span class="token punctuation">,</span> see consumers doc guide <span class="token keyword">to</span> <span class="token namespace">learn</span> more<span class="token punctuation">,</span> <span class="token keyword">class</span><span class="token operator">-</span>id<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span> method<span class="token operator">-</span>id<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>正则表达式可如下:</p>
+<pre class="line-numbers language-regexp" data-language="regexp"><code class="language-regexp">(?P&lt;alert_time&gt;\\d&#123;4&#125;-\\d&#123;2&#125;-\\d&#123;2&#125;\\s\\d&#123;1,2&#125;:\\d&#123;2&#125;:\\d&#123;2&#125;.\\d&#123;3&#125;)\\s*(?P&lt;level&gt;INFO|ERROR|DEBUG|WARN|CRITICAL)\\s*\\d+\\s*---\\s*\\[(?P&lt;Thread&gt;(.*?))\\]\\s*(?P&lt;logger&gt;(.*?)):\\s*(?P&lt;message&gt;[\\s\\S]*)<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>获得labels: alert_time，level，Thread，logger，message</p>
+<p>随后可在grafana alerting中create alert rule，</p>
+<p><img src="https://img.lazysun.me/202307301351570.png" alt="202307301351570"></p>
+<p>这里解释一下几个比较重要的参数</p>
+<p>告警条件:</p>
+<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql">sum <span class="token keyword">by</span> <span class="token punctuation">(</span>app<span class="token punctuation">,</span> <span class="token keyword">level</span><span class="token punctuation">,</span> alert_time<span class="token punctuation">,</span> thread<span class="token punctuation">,</span> logger<span class="token punctuation">,</span> message<span class="token punctuation">)</span>
+   <span class="token punctuation">(</span>count_over_time<span class="token punctuation">(</span>
+   &#123;app<span class="token operator">=</span><span class="token string">"user-service"</span><span class="token punctuation">,</span> <span class="token keyword">level</span><span class="token operator">=</span><span class="token string">"ERROR"</span>&#125; 
+   <span class="token operator">!=</span> <span class="token identifier"><span class="token punctuation">`</span>discard long time none received connection<span class="token punctuation">`</span></span>
+   <span class="token operator">|</span> <span class="token operator">regexp</span> <span class="token string">"(?P&lt;alert_time>\\d&#123;4&#125;-\\d&#123;2&#125;-\\d&#123;2&#125;\\s\\d&#123;1,2&#125;:\\d&#123;2&#125;:\\d&#123;2&#125;.\\d&#123;3&#125;)\\s*(?P&lt;level>INFO|ERROR|DEBUG|WARN|CRITICAL)\\s*\\d+\\s*---\\s*\\[(?P&lt;Thread>(.*?))\\]\\s*(?P&lt;logger>(.*?)):\\s*(?P&lt;message>[\\s\\S]*)"</span><span class="token punctuation">[</span><span class="token number">1</span>m<span class="token punctuation">]</span>
+<span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>每分钟评测一次，当评测sql数据大于0时就会发出告警，告警内容中我在annotaions自定义了header和json属性，header作为飞书卡片的标题，json作为传输数据会被中间件处理，然后分别发出。</p>
+<p>json数据:</p>
+<pre class="line-numbers language-json" data-language="json"><code class="language-json"><span class="token punctuation">[</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> range $k<span class="token punctuation">,</span> $v <span class="token operator">:</span>= $values <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span class="token punctuation">&#123;</span><span class="token property">"app"</span><span class="token operator">:</span> <span class="token string">"&#123;&#123; index $v.Labels "</span>app<span class="token string">" &#125;&#125;"</span><span class="token punctuation">,</span><span class="token property">"alertTime"</span><span class="token operator">:</span> <span class="token string">"&#123;&#123; index $v.Labels "</span>alert_time<span class="token string">" &#125;&#125;"</span><span class="token punctuation">,</span><span class="token property">"level"</span><span class="token operator">:</span> <span class="token string">"&lt;font color='red'>&#123;&#123; index $v.Labels "</span>level<span class="token string">" &#125;&#125;&lt;/font>"</span><span class="token punctuation">,</span><span class="token property">"logger"</span><span class="token operator">:</span> <span class="token string">"&#123;&#123; index $v.Labels "</span>logger<span class="token string">" &#125;&#125;"</span><span class="token punctuation">,</span><span class="token property">"message"</span><span class="token operator">:</span> <span class="token string">"&#123;&#123; index $v.Labels "</span>message<span class="token string">" &#125;&#125;"</span><span class="token punctuation">&#125;</span><span class="token punctuation">,</span><span class="token punctuation">&#123;</span><span class="token punctuation">&#123;</span> end <span class="token punctuation">&#125;</span><span class="token punctuation">&#125;</span><span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>后面在Notifications设置label，规定发送路由alertRouting，Alert触发后会根据这个参数进行自定义通知。</p>
+<p>设置联络点和路由:</p>
+<p><img src="https://img.lazysun.me/202307301402394.png" alt="image-20230730140257700"></p>
+<h3 id="主机资源告警"><a href="#主机资源告警" class="headerlink" title="主机资源告警"></a>主机资源告警</h3><p>设置与日志类似，可以与仪表盘相结合</p>
+<h4 id="cpu"><a href="#cpu" class="headerlink" title="cpu"></a>cpu</h4><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token number">1</span><span class="token operator">-</span><span class="token function">avg</span><span class="token punctuation">(</span>irate<span class="token punctuation">(</span>node_cpu_seconds_total&#123;instance<span class="token operator">=</span><span class="token operator">~</span><span class="token string">"设置的主机名"</span><span class="token punctuation">,</span><span class="token keyword">mode</span><span class="token operator">=</span><span class="token string">"idle"</span>&#125;<span class="token punctuation">[</span><span class="token number">1</span>m<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<p>发送内容(同样由中间件转发):</p>
+<pre class="line-numbers language-none"><code class="language-none">主机: 设置的主机名
+cpu使用率大于80,cpu使用率为&#123;&#123; $values.B0 &#125;&#125;%<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+
+<h4 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h4><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token punctuation">(</span><span class="token function">sum</span><span class="token punctuation">(</span>node_memory_MemTotal_bytes&#123;instance<span class="token operator">=</span><span class="token string">"设置的主机名"</span><span class="token punctuation">,</span> job<span class="token operator">=</span><span class="token string">"prometheus"</span>&#125; <span class="token operator">-</span> node_memory_MemAvailable_bytes&#123;instance<span class="token operator">=</span><span class="token string">"设置的主机名"</span><span class="token punctuation">,</span> job<span class="token operator">=</span><span class="token string">"prometheus"</span>&#125;<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token function">sum</span><span class="token punctuation">(</span>node_memory_MemTotal_bytes&#123;instance<span class="token operator">=</span><span class="token string">"设置的主机名"</span><span class="token punctuation">,</span> job<span class="token operator">=</span><span class="token string">"prometheus"</span>&#125;<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">*</span><span class="token number">100</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h4 id="磁盘空间"><a href="#磁盘空间" class="headerlink" title="磁盘空间"></a>磁盘空间</h4><pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token number">100</span> <span class="token operator">-</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>node_filesystem_avail_bytes&#123;instance<span class="token operator">=</span><span class="token operator">~</span><span class="token string">"设置的主机名"</span><span class="token punctuation">,</span>job<span class="token operator">=</span><span class="token operator">~</span><span class="token string">"prometheus"</span><span class="token punctuation">,</span>device<span class="token operator">!</span><span class="token operator">~</span><span class="token string">'rootfs'</span>&#125; <span class="token operator">*</span> <span class="token number">100</span><span class="token punctuation">)</span> <span class="token operator">/</span> node_filesystem_size_bytes&#123;instance<span class="token operator">=</span><span class="token operator">~</span><span class="token string">"设置的主机名"</span><span class="token punctuation">,</span>job<span class="token operator">=</span><span class="token operator">~</span><span class="token string">"prometheus"</span><span class="token punctuation">,</span>device<span class="token operator">!</span><span class="token operator">~</span><span class="token string">'rootfs'</span>&#125;<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>网上关于grafana的资料描述的都有些模糊，所以我根据自己的理解自定义了这个告警，使用体验还行，但是因为创建模板使用的模板语言我看不懂，且需要的告警规则不多，我便手动添加了(扩展起来不变),同时使用中间件进行转发<a target="_blank" rel="noopener" href="https://github.com/zoy0/nacos-notify">GitHub - zoy0&#x2F;nacos-notify</a>，看起来会舒服很多，但是应该是不规范的。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://lazysun.me">lazysun</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://lazysun.me/p/ddc4.html">https://lazysun.me/p/ddc4.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://lazysun.me" target="_blank">lazysun</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deploy/">deploy</a><a class="post-meta__tags" href="/tags/prometheus/">prometheus</a><a class="post-meta__tags" href="/tags/%E6%97%A5%E5%BF%97/">日志</a></div><div class="post_share"><div class="social-share" data-image="https://img.lazysun.me/202307301446894.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://fastly.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/p/5180.html"><img class="prev-cover" src="https://img.lazysun.me/202307301446894.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">RabbitMq知识集锦</div></div></a></div><div class="next-post pull-right"><a href="/p/f7b9.html"><img class="next-cover" src="https://img.lazysun.me/202302280006395.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">记录一次磁盘不足的问题</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/p/f651.html" title="服务器监控系统"><img class="cover" src="https://img.lazysun.me/202302152351031.jpeg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-02-15</div><div class="title">服务器监控系统</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/hmbb.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">lazysun</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/zoy0"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">本来无一物，何处惹尘埃</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Grafana%E5%91%8A%E8%AD%A6"><span class="toc-number">1.</span> <span class="toc-text">Grafana告警</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#docker%E5%AE%89%E8%A3%85node-exporter%EF%BC%8Cnode-exporter%EF%BC%8Ccadvisor"><span class="toc-number">1.1.</span> <span class="toc-text">docker安装node-exporter，node-exporter，cadvisor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#grafana%E4%BB%AA%E8%A1%A8%E7%9B%98"><span class="toc-number">1.2.</span> <span class="toc-text">grafana仪表盘</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#grafana%E8%AE%BE%E7%BD%AE%E5%91%8A%E8%AD%A6%E4%BF%A1%E6%81%AF"><span class="toc-number">1.3.</span> <span class="toc-text">grafana设置告警信息</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E5%91%8A%E8%AD%A6"><span class="toc-number">1.3.1.</span> <span class="toc-text">日志告警</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E8%B5%84%E6%BA%90%E5%91%8A%E8%AD%A6"><span class="toc-number">1.3.2.</span> <span class="toc-text">主机资源告警</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#cpu"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">cpu</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%85%E5%AD%98"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">内存</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A3%81%E7%9B%98%E7%A9%BA%E9%97%B4"><span class="toc-number">1.3.2.3.</span> <span class="toc-text">磁盘空间</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">1.4.</span> <span class="toc-text">总结</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/p/5180.html" title="RabbitMq知识集锦"><img src="https://img.lazysun.me/202307301446894.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="RabbitMq知识集锦"/></a><div class="content"><a class="title" href="/p/5180.html" title="RabbitMq知识集锦">RabbitMq知识集锦</a><time datetime="2023-09-14T12:50:22.000Z" title="发表于 2023-09-14 12:50:22">2023-09-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/p/ddc4.html" title="grafana告警"><img src="https://img.lazysun.me/202307301446894.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="grafana告警"/></a><div class="content"><a class="title" href="/p/ddc4.html" title="grafana告警">grafana告警</a><time datetime="2023-07-30T12:17:58.000Z" title="发表于 2023-07-30 12:17:58">2023-07-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/p/f7b9.html" title="记录一次磁盘不足的问题"><img src="https://img.lazysun.me/202302280006395.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="记录一次磁盘不足的问题"/></a><div class="content"><a class="title" href="/p/f7b9.html" title="记录一次磁盘不足的问题">记录一次磁盘不足的问题</a><time datetime="2023-02-28T00:00:23.000Z" title="发表于 2023-02-28 00:00:23">2023-02-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/p/523.html" title="云服务器如何挂载磁盘"><img src="https://img.lazysun.me/202302202057344.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="云服务器如何挂载磁盘"/></a><div class="content"><a class="title" href="/p/523.html" title="云服务器如何挂载磁盘">云服务器如何挂载磁盘</a><time datetime="2023-02-20T20:27:19.000Z" title="发表于 2023-02-20 20:27:19">2023-02-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/p/f651.html" title="服务器监控系统"><img src="https://img.lazysun.me/202302152351031.jpeg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="服务器监控系统"/></a><div class="content"><a class="title" href="/p/f651.html" title="服务器监控系统">服务器监控系统</a><time datetime="2023-02-15T22:50:31.000Z" title="发表于 2023-02-15 22:50:31">2023-02-15</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By lazysun</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://fastly.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

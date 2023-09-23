@@ -1,0 +1,291 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>服务器监控系统 | lazysun</title><meta name="author" content="lazysun"><meta name="copyright" content="lazysun"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="服务器监控系统，用于监控服务运行情况，服务器状态，查看日志，错误告警等功能">
+<meta property="og:type" content="article">
+<meta property="og:title" content="服务器监控系统">
+<meta property="og:url" content="https://lazysun.me/p/f651.html">
+<meta property="og:site_name" content="lazysun">
+<meta property="og:description" content="服务器监控系统，用于监控服务运行情况，服务器状态，查看日志，错误告警等功能">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.lazysun.me/202302152351031.jpeg">
+<meta property="article:published_time" content="2023-02-15T22:50:31.000Z">
+<meta property="article:modified_time" content="2023-02-25T15:39:34.000Z">
+<meta property="article:author" content="lazysun">
+<meta property="article:tag" content="deploy">
+<meta property="article:tag" content="prometheus">
+<meta property="article:tag" content="日志">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.lazysun.me/202302152351031.jpeg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://lazysun.me/p/f651"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"prismjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://fastly.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://fastly.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '服务器监控系统',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-02-25 15:39:34'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/hmbb.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://img.lazysun.me/202302152349787.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">lazysun</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">服务器监控系统</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-02-15T22:50:31.000Z" title="发表于 2023-02-15 22:50:31">2023-02-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-02-25T15:39:34.000Z" title="更新于 2023-02-25 15:39:34">2023-02-25</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/tasks/">tasks</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="服务器监控系统"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="Prometheus-Server"><a href="#Prometheus-Server" class="headerlink" title="Prometheus Server"></a>Prometheus Server</h2><p>Prometheus服务的主服务器，收集监控信息</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-d</span> <span class="token parameter variable">-p</span> <span class="token number">9090</span>:9090 <span class="token parameter variable">--name</span> prometheus <span class="token parameter variable">--net</span><span class="token operator">=</span>host prom/prometheus
+<span class="token comment">#先基于prom/prometheus镜像随便运行一个容器，我们需要将其主配置文件复制一份进行更改</span>
+<span class="token function">docker</span> <span class="token function">cp</span> prometheus:/etc/prometheus/prometheus.yml ./
+<span class="token comment">#复制prometheus容器中的主配置文件到宿主机本地</span>
+<span class="token function">docker</span> <span class="token function">rm</span> <span class="token parameter variable">-f</span> prometheus 
+<span class="token function">vim</span> prometheus.yml 
+<span class="token comment">#找到如下行并修改</span>
+    - targets: <span class="token punctuation">[</span><span class="token string">'localhost:9090'</span>,<span class="token string">'localhost:8080'</span>,<span class="token string">'localhost:9100'</span>,<span class="token string">'192.168.171.150:9100'</span>,<span class="token string">'192.168.171.150:8080'</span>,<span class="token string">'192.168.171.152:9100'</span>,<span class="token string">'192.168.171.152:8080'</span><span class="token punctuation">]</span>
+<span class="token comment">#上述内容看似杂乱无章，其实无非就是指定了本机的9090、8080、9100这三个端口，</span>
+<span class="token comment">#还增加了另外两台被监控的服务器的8080端口和9100端口</span>
+<span class="token comment">#若需要监控更多的服务器，只需依次在上面指定添加即可，当然了，被监控端需要运行前面的两个容器</span>
+<span class="token function">docker</span> run <span class="token parameter variable">-d</span> <span class="token parameter variable">-p</span> <span class="token number">9090</span>:9090 <span class="token parameter variable">-v</span> ./prometheus.yml:/etc/prometheus/prometheus.yml <span class="token parameter variable">--name</span> prometheus <span class="token parameter variable">--net</span><span class="token operator">=</span>host prom/prometheus
+<span class="token comment">#执行上述命令，运行新的prometheus容器，并将刚刚修改的主配置文件挂载到容器中的指定位置</span>
+<span class="token comment">#以后若要修改主配置文件，则直接修改本地的即可。</span>
+<span class="token comment">#挂载主配置文件后，本地的和容器内的相当于同一份，在本地修改内容的话，会同步到容器中</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="Node-Exporter"><a href="#Node-Exporter" class="headerlink" title="Node Exporter"></a>Node Exporter</h2><p>收集Host硬件和操作系统的信息</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-d</span> <span class="token parameter variable">-p</span> <span class="token number">9100</span>:9100 <span class="token parameter variable">-v</span> /proc:/host/proc <span class="token parameter variable">-v</span> /sys:/host/sys <span class="token parameter variable">-v</span> /:/rootfs <span class="token parameter variable">--net</span><span class="token operator">=</span>host <span class="token parameter variable">--restart</span><span class="token operator">=</span>always prom/node-exporter <span class="token parameter variable">--path.procfs</span> /host/proc <span class="token parameter variable">--path.sysfs</span> /host/sys --collector.filesystem.ignored-mount-points <span class="token string">"^/(sys|proc|dev|host|etc)($|/)"</span>
+<span class="token comment">#基于“prom/node-exporter”镜像运行容器，可以去github官网搜索该镜像，以便了解其主要功能</span>
+<span class="token comment">#注：每台需要被监控的主机都需要执行上述命令以便运行容器，以便收集主机信息</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<h2 id="cAdvrisor"><a href="#cAdvrisor" class="headerlink" title="cAdvrisor"></a>cAdvrisor</h2><p>负责收集Host上运行的容器信息</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-v</span> /:/rootfs:ro <span class="token parameter variable">-v</span> /var/run:/var/run:rw <span class="token parameter variable">-v</span> /sys:/sys:ro <span class="token parameter variable">-v</span> /var/lib/docker:/var/lib/docker:ro <span class="token parameter variable">-p</span> <span class="token number">8080</span>:8080 <span class="token parameter variable">--detach</span><span class="token operator">=</span>true <span class="token parameter variable">--name</span><span class="token operator">=</span>cadvisor <span class="token parameter variable">--net</span><span class="token operator">=</span>host google/cadvisor<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+<h2 id="grafana"><a href="#grafana" class="headerlink" title="grafana"></a>grafana</h2><p>用来展示Prometheus监控操作界面（给我们提供一个友好的web界面）</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"> <span class="token function">mkdir</span> grafana-storage
+<span class="token function">chmod</span> <span class="token number">777</span> <span class="token parameter variable">-R</span> grafana-storage/
+<span class="token function">docker</span> run <span class="token parameter variable">-d</span> <span class="token parameter variable">-p</span> <span class="token number">3000</span>:3000 <span class="token parameter variable">--name</span> grafana <span class="token parameter variable">-v</span> ./grafana-storage:/var/lib/grafana <span class="token parameter variable">-e</span> <span class="token string">"GF_SECURITY_ADMIN_PASSWORD=123456"</span> grafana/grafana
+<span class="token comment">#上述命令中的“-e”选项是为了设置默认的登录用户admin，密码为“123456”。</span>
+<span class="token comment">#如果启动容器的过程中，提示iptables等相关的错误信息，</span>
+<span class="token comment">#则需要执行命令systemctl restart docker，重启docker服务，然后重新运行容器</span>
+<span class="token comment">#但是需要注意，若运行容器时没有增加“--restart=always”选项的话，</span>
+<span class="token comment">#那么在重启docker服务后，还需将所有容器手动重启。</span>
+<span class="token comment">#重启所有容器命令“docker ps -a -q | xargs docker start”</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>grafana通过nginx进行转发</p>
+<p>nginx和grafana均使用docker部署</p>
+<p>grafana官方文档：<a target="_blank" rel="noopener" href="https://grafana.com/tutorials/run-grafana-behind-a-proxy/">在反向代理|后面运行 Grafana格拉法纳实验室</a></p>
+<p><strong>nginx配置</strong></p>
+<pre class="line-numbers language-nginx" data-language="nginx"><code class="language-nginx"><span class="token comment"># this is required to proxy Grafana Live WebSocket connections.</span>
+<span class="token directive"><span class="token keyword">map</span> <span class="token variable">$http_upgrade</span> <span class="token variable">$connection_upgrade</span></span> <span class="token punctuation">&#123;</span>
+  <span class="token directive"><span class="token keyword">default</span> upgrade</span><span class="token punctuation">;</span>
+  '' <span class="token directive"><span class="token keyword">close</span></span><span class="token punctuation">;</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token directive"><span class="token keyword">upstream</span> grafana</span> <span class="token punctuation">&#123;</span>
+  <span class="token directive"><span class="token keyword">server</span> domain.com:3000</span><span class="token punctuation">;</span> <span class="token comment">#域名:端口 由于使用docker，所以不能像官方文档一样使用localhost</span>
+<span class="token punctuation">&#125;</span>
+
+<span class="token directive"><span class="token keyword">server</span></span> <span class="token punctuation">&#123;</span>
+  <span class="token directive"><span class="token keyword">listen</span> <span class="token number">80</span></span><span class="token punctuation">;</span>
+  <span class="token directive"><span class="token keyword">root</span> /usr/share/nginx/html</span><span class="token punctuation">;</span>
+  <span class="token directive"><span class="token keyword">index</span> index.html index.htm</span><span class="token punctuation">;</span>
+
+  <span class="token directive"><span class="token keyword">location</span> /grafana/</span> <span class="token punctuation">&#123;</span>
+    <span class="token directive"><span class="token keyword">rewrite</span>  ^/grafana/(.*)  /<span class="token variable">$1</span> break</span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">proxy_set_header</span> Host <span class="token variable">$http_host</span></span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">proxy_pass</span> http://grafana</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+
+  <span class="token comment"># Proxy Grafana Live WebSocket connections.</span>
+  <span class="token directive"><span class="token keyword">location</span> /grafana/api/live/</span> <span class="token punctuation">&#123;</span>
+    <span class="token directive"><span class="token keyword">rewrite</span>  ^/grafana/(.*)  /<span class="token variable">$1</span> break</span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">proxy_http_version</span> 1.1</span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">proxy_set_header</span> Upgrade <span class="token variable">$http_upgrade</span></span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">proxy_set_header</span> Connection <span class="token variable">$connection_upgrade</span></span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">proxy_set_header</span> Host <span class="token variable">$http_host</span></span><span class="token punctuation">;</span>
+    <span class="token directive"><span class="token keyword">proxy_pass</span> http://grafana</span><span class="token punctuation">;</span>
+  <span class="token punctuation">&#125;</span>
+<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p><strong>grafana配置</strong></p>
+<pre class="line-numbers language-conf" data-language="conf"><code class="language-conf">[server]
+domain &#x3D; domain.com
+root_url &#x3D; %(protocol)s:&#x2F;&#x2F;%(domain)s&#x2F;grafana&#x2F;
+serve_from_sub_path &#x3D; true<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>之后重启容器访问 <a target="_blank" rel="noopener" href="http://domain.com/grafana">http://domain.com/grafana</a> 即可</p>
+<h2 id="loki-promtail"><a href="#loki-promtail" class="headerlink" title="loki + promtail"></a>loki + promtail</h2><p>日志收集系统，在grafana中展示</p>
+<p>docker-compose.yml文件：</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token key atrule">version</span><span class="token punctuation">:</span> <span class="token string">"1"</span>
+<span class="token key atrule">services</span><span class="token punctuation">:</span>
+  <span class="token key atrule">promtail</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> grafana/promtail<span class="token punctuation">:</span>2.2.0
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> promtail
+    <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> ./promtail/promtail<span class="token punctuation">-</span>docker<span class="token punctuation">-</span>config.yaml<span class="token punctuation">:</span>/etc/promtail/docker<span class="token punctuation">-</span>config.yaml
+      <span class="token punctuation">-</span> /var/test/usr/<span class="token punctuation">:</span>/var/log/user/
+      <span class="token comment">#这里可依次将需要的日志文件夹挂载上去,因为有些服务日志是定期清楚更换的，所以不便挂载日志文件本身</span>
+    <span class="token key atrule">command</span><span class="token punctuation">:</span> <span class="token string">"--config.file=/etc/promtail/docker-config.yaml"</span>
+  <span class="token key atrule">loki</span><span class="token punctuation">:</span>
+    <span class="token key atrule">image</span><span class="token punctuation">:</span> grafana/loki<span class="token punctuation">:</span>2.2.0
+    <span class="token key atrule">container_name</span><span class="token punctuation">:</span> loki
+    <span class="token key atrule">command</span><span class="token punctuation">:</span> <span class="token punctuation">-</span>config.file=/etc/loki/local<span class="token punctuation">-</span>config.yaml
+    <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token string">"3100:3100"</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>loki可能会出现日志过大现象，严重占用内存空间，所以使用docker run</p>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-it</span> --log-opt max-size<span class="token operator">=</span>10m --log-opt max-file<span class="token operator">=</span><span class="token number">3</span> <span class="token parameter variable">--name</span> loki  <span class="token parameter variable">-p</span> <span class="token number">3100</span>:3100 grafana/loki:2.2.0 <span class="token parameter variable">-config.file</span><span class="token operator">=</span>/etc/loki/local-config.yaml
+<span class="token comment"># max-size 最大数值</span>
+<span class="token comment"># max-file 最大日志数</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+
+<p>promtail-docker-config.yaml 文件：</p>
+<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token key atrule">server</span><span class="token punctuation">:</span>
+  <span class="token key atrule">http_listen_port</span><span class="token punctuation">:</span> <span class="token number">9080</span>
+  <span class="token key atrule">grpc_listen_port</span><span class="token punctuation">:</span> <span class="token number">0</span>
+
+<span class="token key atrule">positions</span><span class="token punctuation">:</span>
+  <span class="token key atrule">filename</span><span class="token punctuation">:</span> /tmp/positions.yaml
+
+<span class="token key atrule">clients</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> <span class="token key atrule">url</span><span class="token punctuation">:</span> http<span class="token punctuation">:</span>//loki<span class="token punctuation">:</span>3100/loki/api/v1/push <span class="token comment">#loki主机的ip地址或域名</span>
+
+<span class="token key atrule">scrape_configs</span><span class="token punctuation">:</span>
+  <span class="token punctuation">-</span> <span class="token key atrule">job_name</span><span class="token punctuation">:</span> system
+    <span class="token key atrule">static_configs</span><span class="token punctuation">:</span>
+    <span class="token punctuation">-</span> <span class="token key atrule">targets</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> localhost
+      <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+        <span class="token key atrule">job</span><span class="token punctuation">:</span> test
+        <span class="token key atrule">app</span><span class="token punctuation">:</span> user<span class="token punctuation">-</span>service
+        <span class="token key atrule">__path__</span><span class="token punctuation">:</span> /var/log/user/logs.txt
+
+    <span class="token key atrule">pipeline_stages</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token key atrule">match</span><span class="token punctuation">:</span>
+          <span class="token key atrule">selector</span><span class="token punctuation">:</span> <span class="token string">'&#123;job="test"&#125;'</span>
+          <span class="token key atrule">stages</span><span class="token punctuation">:</span> 
+          <span class="token punctuation">-</span> <span class="token key atrule">multiline</span><span class="token punctuation">:</span>
+              <span class="token key atrule">firstline</span><span class="token punctuation">:</span> <span class="token string">'\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s\d&#123;1,2&#125;:\d&#123;2&#125;:\d&#123;2&#125;.\d&#123;3&#125;\s*(INFO|ERROR|DEBUG|WARN|CRITICAL)'</span>
+              <span class="token comment">#使用正则匹配日志首行,比如java的error日志会打印出错误堆栈信息,会被promtail分解为多条日志</span>
+          <span class="token punctuation">-</span> <span class="token key atrule">regex</span><span class="token punctuation">:</span>
+              <span class="token key atrule">expression</span><span class="token punctuation">:</span> <span class="token string">'\d&#123;4&#125;-\d&#123;2&#125;-\d&#123;2&#125;\s\d&#123;1,2&#125;:\d&#123;2&#125;:\d&#123;2&#125;.\d&#123;3&#125;\s*(?P&lt;level>INFO|ERROR|DEBUG|WARN|CRITICAL)'</span>
+              <span class="token comment">#此处使用正则提取出日志等级,INFO|ERROR|DEBUG|WARN|CRITICAL,方便展示</span>
+          <span class="token punctuation">-</span> <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+              <span class="token key atrule">level</span><span class="token punctuation">:</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+
+<p>如果grafana获取不到loki的数据：</p>
+<ul>
+<li>确定端口已开放</li>
+<li>防火墙问题(遇到过，应该可以通过某些设置放开，但是我当时直接关了)</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://lazysun.me">lazysun</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://lazysun.me/p/f651.html">https://lazysun.me/p/f651.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://lazysun.me" target="_blank">lazysun</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/deploy/">deploy</a><a class="post-meta__tags" href="/tags/prometheus/">prometheus</a><a class="post-meta__tags" href="/tags/%E6%97%A5%E5%BF%97/">日志</a></div><div class="post_share"><div class="social-share" data-image="https://img.lazysun.me/202302152351031.jpeg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://fastly.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/p/523.html"><img class="prev-cover" src="https://img.lazysun.me/202302202057344.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">云服务器如何挂载磁盘</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/p/ddc4.html" title="grafana告警"><img class="cover" src="https://img.lazysun.me/202307301446894.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-07-30</div><div class="title">grafana告警</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/hmbb.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">lazysun</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">5</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/zoy0"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">本来无一物，何处惹尘埃</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Prometheus-Server"><span class="toc-number">1.</span> <span class="toc-text">Prometheus Server</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Node-Exporter"><span class="toc-number">2.</span> <span class="toc-text">Node Exporter</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cAdvrisor"><span class="toc-number">3.</span> <span class="toc-text">cAdvrisor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#grafana"><span class="toc-number">4.</span> <span class="toc-text">grafana</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#loki-promtail"><span class="toc-number">5.</span> <span class="toc-text">loki + promtail</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/p/5180.html" title="RabbitMq知识集锦"><img src="https://img.lazysun.me/202307301446894.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="RabbitMq知识集锦"/></a><div class="content"><a class="title" href="/p/5180.html" title="RabbitMq知识集锦">RabbitMq知识集锦</a><time datetime="2023-09-14T12:50:22.000Z" title="发表于 2023-09-14 12:50:22">2023-09-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/p/ddc4.html" title="grafana告警"><img src="https://img.lazysun.me/202307301446894.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="grafana告警"/></a><div class="content"><a class="title" href="/p/ddc4.html" title="grafana告警">grafana告警</a><time datetime="2023-07-30T12:17:58.000Z" title="发表于 2023-07-30 12:17:58">2023-07-30</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/p/f7b9.html" title="记录一次磁盘不足的问题"><img src="https://img.lazysun.me/202302280006395.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="记录一次磁盘不足的问题"/></a><div class="content"><a class="title" href="/p/f7b9.html" title="记录一次磁盘不足的问题">记录一次磁盘不足的问题</a><time datetime="2023-02-28T00:00:23.000Z" title="发表于 2023-02-28 00:00:23">2023-02-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/p/523.html" title="云服务器如何挂载磁盘"><img src="https://img.lazysun.me/202302202057344.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="云服务器如何挂载磁盘"/></a><div class="content"><a class="title" href="/p/523.html" title="云服务器如何挂载磁盘">云服务器如何挂载磁盘</a><time datetime="2023-02-20T20:27:19.000Z" title="发表于 2023-02-20 20:27:19">2023-02-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/p/f651.html" title="服务器监控系统"><img src="https://img.lazysun.me/202302152351031.jpeg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="服务器监控系统"/></a><div class="content"><a class="title" href="/p/f651.html" title="服务器监控系统">服务器监控系统</a><time datetime="2023-02-15T22:50:31.000Z" title="发表于 2023-02-15 22:50:31">2023-02-15</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By lazysun</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://fastly.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
