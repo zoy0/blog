@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>redis日常学习(持续更新)</title>
+      <link href="/p/1893.html"/>
+      <url>/p/1893.html</url>
+      
+        <content type="html"><![CDATA[<h1 id="Reids持久化机制"><a href="#Reids持久化机制" class="headerlink" title="Reids持久化机制"></a>Reids持久化机制</h1><h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p><strong>怎么保证 Redis 挂掉之后再重启数据可以进行恢复？</strong> ⭐⭐⭐⭐⭐</p><p><strong>什么是 RDB 持久化？</strong> ⭐⭐⭐⭐⭐</p><p><strong>什么是 AOF 持久化？</strong> ⭐⭐⭐⭐⭐</p><p><strong>Redis 4.0 对于持久化机制做了什么优化？</strong> ⭐⭐⭐⭐</p><h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><p>使用缓存的时候，我们经常需要对内存中的数据进行持久化也就是将内存中的数据写入到硬盘中。大部分原因是为了之后重用数据（比如重启机器、机器故障之后恢复数据），或者是为了做数据同步（比如 Redis 集群的主从节点通过 RDB 文件同步数据）。</p><p>Redis支持三种持久化方式: RDB, AOF, RDB和AOF混合持久化</p><h3 id="RDB方式持久化"><a href="#RDB方式持久化" class="headerlink" title="RDB方式持久化"></a>RDB方式持久化</h3><p>默认采用的持久化方式</p><p>Redis 可以通过创建快照来获得存储在内存里面的数据在 <strong>某个时间点</strong> 上的副本。Redis 创建快照之后，可以对快照进行备份，可以将快照复制到其他服务器从而创建具有相同数据的服务器副本（Redis 主从结构，主要用来提高 Redis 性能），还可以将快照留在原地以便重启服务器的时候使用。</p><p>Redis 提供了两个命令来生成 RDB 文件，分别是 save 和 bgsave，save会堵塞主进程，而bgsave则是fork出一个子进程执行快照备份。<br>redis.conf相关配置</p><pre class="line-numbers language-cobol" data-language="cobol"><code class="language-cobol"><span class="token keyword">save</span> <span class="token number">900</span> <span class="token number">1</span>           #在<span class="token number">900</span>秒<span class="token punctuation">(</span><span class="token number">15</span>分钟<span class="token punctuation">)</span>之后，如果至少有<span class="token number">1</span>个<span class="token keyword">key</span>发生变化，Redis就会自动触发bgsave命令创建快照。<span class="token keyword">save</span> <span class="token number">300</span> <span class="token number">10</span>          #在<span class="token number">300</span>秒<span class="token punctuation">(</span><span class="token number">5</span>分钟<span class="token punctuation">)</span>之后，如果至少有<span class="token number">10</span>个<span class="token keyword">key</span>发生变化，Redis就会自动触发bgsave命令创建快照。<span class="token keyword">save</span> <span class="token number">60</span> <span class="token number">10000</span>        #在<span class="token number">60</span>秒<span class="token punctuation">(</span><span class="token number">1</span>分钟<span class="token punctuation">)</span>之后，如果至少有<span class="token number">10000</span>个<span class="token keyword">key</span>发生变化，Redis就会自动触发bgsave命令创建快照。<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>bgsava 过程中，Redis 依然<strong>可以继续处理操作命令</strong>的，也就是数据是能被修改的。关键的技术就在于<strong>写时复制技术</strong>(<em><strong>Copy-On-Write, COW</strong></em>)。</p><p>执行 bgsava 命令的时候，会通过 fork() 创建子进程，此时子进程和父进程是共享同一片内存数据的，因为创建子进程的时候，会复制父进程的页表，但是页表指向的物理内存还是一个。</p><p><img src="https://img.lazysun.me/202310092117416.webp" alt="img"></p><p>只有在发生修改内存数据的情况时，物理内存才会被复制一份。</p><p><img src="https://img.lazysun.me/202310092116866.webp" alt="img"></p><p>当主线程和子线程都只是读共享数据时，内存没有任何变化，但是如果主线程发生了写操作，如主线程要<strong>修改共享数据里的某一块数据</strong>（比如键值对 A）时，就会发生写时复制，于是这块数据的<strong>物理内存就会被复制一份（键值对</strong> <strong>A’）</strong>，然后<strong>主线程在这个数据副本（键值对A’）进行修改操作</strong>。与此同时，<strong>bgsave 子进程可以继续把原来的数据（键值对</strong> <strong>A）写入到 RDB 文件</strong>。</p><p>写时复制可以保证bgsave生成的RDB文件是某个时间点的全量快照，但是再某种极端情况下，如<strong>键值对被大量修改</strong>，会复制出大量副本，占用许多内存空间。因此，在写操作比较频繁时，需要监控redis的内存变化</p><h3 id="AOF方式持久化"><a href="#AOF方式持久化" class="headerlink" title="AOF方式持久化"></a>AOF方式持久化</h3><p>AOF 持久化的实时性更好。默认情况下 Redis 没有开启 AOF（append only file）方式的持久化（Redis 6.0 之后已经默认是开启了），可以通过 <code>appendonly</code> 参数开启：</p><pre class="line-numbers language-cobol" data-language="cobol"><code class="language-cobol">appendonly yes<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><p>开启AOF后，每执行一条修改数据的命令后都会将该命令写入到AOF缓冲区<code>server.aof_buf</code>中，然后再写入AOF文件中，最后根据fsync策略决定何时进行刷盘。</p><h4 id="AOF的基本流程"><a href="#AOF的基本流程" class="headerlink" title="AOF的基本流程"></a>AOF的基本流程</h4><ol><li>命令追加(appen)：每一条修改数据的命令都会被添加到AOF缓冲区</li><li>文件写入(write)：由AOF缓冲区写入AOF文件，使用<code>write</code>函数，此时数据被写入系统内核缓冲区，需要等待系统调度或者 <code>fsync</code> 方法强制刷新缓冲区，同步到磁盘</li><li>文件同步(fsync)：AOF 缓冲区根据对应的持久化方式（ <code>fsync</code> 策略）向硬盘做同步操作。这一步需要调用 <code>fsync</code> 函数（系统调用）， <code>fsync</code> 针对单个文件操作，对其进行强制硬盘同步，<code>fsync</code> 将阻塞直到写入磁盘完成后返回，保证了数据持久化。</li><li>文件重写(rewrite)：AOF文件过大时，会进行压缩。</li><li>重写加载(load)：重启redis时，读取AOF文件的数据进行恢复</li></ol><h4 id="AOF持久化方式-fsync策略"><a href="#AOF持久化方式-fsync策略" class="headerlink" title="AOF持久化方式(fsync策略)"></a>AOF持久化方式(fsync策略)</h4><ol><li><strong>appendfsync always</strong>：每一次调用write方法后调用fsync同步到磁盘，会严重降低redis的性能。</li><li><strong>appendfsync everysec</strong>：执行命令，调用 write 方法后立即返回，每隔1s调用fsync进行刷盘。</li><li><strong>appendfsync no</strong>：执行命令，调用 write 方法后立即返回，让系统自行同步到磁盘。</li></ol><h4 id="AOF重写"><a href="#AOF重写" class="headerlink" title="AOF重写"></a>AOF重写</h4><p>当 AOF 变得太大时，Redis 能够在后台自动重写 AOF 产生一个新的 AOF 文件，这个新的 AOF 文件和原有的 AOF 文件所保存的数据库状态一样，但体积更小。</p><p><img src="https://img.lazysun.me/202310092114801.png" alt="image-20231009205745562"></p><h4 id="AOF校检机制"><a href="#AOF校检机制" class="headerlink" title="AOF校检机制"></a>AOF校检机制</h4><p>AOF 校验机制是 Redis 在启动时对 AOF 文件进行检查，以判断文件是否完整，是否有损坏或者丢失的数据。这个机制的原理其实非常简单，就是通过使用一种叫做 <strong>校验和（checksum）</strong> 的数字来验证 AOF 文件。这个校验和是通过对整个 AOF 文件内容进行 CRC64 算法计算得出的数字。如果文件内容发生了变化，那么校验和也会随之改变。因此，Redis 在启动时会比较计算出的校验和与文件末尾保存的校验和（计算的时候会把最后一行保存校验和的内容给忽略点），从而判断 AOF 文件是否完整。如果发现文件有问题，Redis 就会拒绝启动并提供相应的错误信息。AOF 校验机制十分简单有效，可以提高 Redis 数据的可靠性。</p><h4 id="RDB-AOF混合方式"><a href="#RDB-AOF混合方式" class="headerlink" title="RDB-AOF混合方式"></a>RDB-AOF混合方式</h4><p>fork出来的子进程将内存副本全量已RDB的方式写入到AOP临时文件，再将重写缓冲区的增量以AOF的方式添加到临时文件末尾，最后将RDB + AOF混合的AOF文件取代旧的AOF文件。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 日常学习 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> redis </tag>
+            
+            <tag> nosql </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>RabbitMq知识集锦</title>
       <link href="/p/5180.html"/>
       <url>/p/5180.html</url>
