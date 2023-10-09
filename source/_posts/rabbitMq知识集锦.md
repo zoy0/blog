@@ -1,8 +1,8 @@
 ---
-abbrlink: 
+abbrlink: '5180'
 categories:
   - - note
-cover: 'https://img.lazysun.me/202307301446894.png'
+cover: 'https://img.lazysun.me/cover-202310092119179.webp'
 description: 设置日志，服务器资源告警
 tags:
   - MQ
