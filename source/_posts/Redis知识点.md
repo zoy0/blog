@@ -236,8 +236,192 @@ void aeMain(aeEventLoop *eventLoop) {
 
 # Redis内存管理
 
-待更新.....
+## redis设置缓存过期时间
+
+内存资源是有限的，所以缓存数据需要过期时间，不然会导致oom
+
+Redis自带了给缓存数据设置过期时间的功能，但是除了字符串类型有独有的设置过期时间 `setex` 外，其他类型都需要依靠 `expire` 命令来设置过期时间。这意味着一些api (如redisTemplate) 添加键值对的同时设置过期时间需要2条命令。
+
+## redis内存淘汰机制
+
+6种数据淘汰策略
+
+> 1. **volatile-lru（least recently used）**：从已设置过期时间的数据集（`server.db[i].expires`）中挑选最近最少使用的数据淘汰。
+>
+> 2. **volatile-ttl**：从已设置过期时间的数据集（`server.db[i].expires`）中挑选将要过期的数据淘汰。
+>
+> 3. **volatile-random**：从已设置过期时间的数据集（`server.db[i].expires`）中任意选择数据淘汰。
+>
+> 4. **allkeys-lru（least recently used）**：当内存不足以容纳新写入数据时，在键空间中，移除最近最少使用的 key（这个是最常用的）。
+>
+> 5. **allkeys-random**：从数据集（`server.db[i].dict`）中任意选择数据淘汰。
+>
+> 6. **no-eviction**：禁止驱逐数据，也就是说当内存不足以容纳新写入数据时，新写入操作会报错。这个应该没人使用吧！
+>
+>    4.0 版本后增加：
+>
+> 7. **volatile-lfu（least frequently used）**：从已设置过期时间的数据集（`server.db[i].expires`）中挑选最不经常使用的数据淘汰。
+>
+> 8. **allkeys-lfu（least frequently used）**：当内存不足以容纳新写入数据时，在键空间中，移除最不经常使用的 key。
+>
+> ------
+>
+> 著作权归JavaGuide(javaguide.cn)所有 基于MIT协议 原文链接：https://javaguide.cn/database/redis/redis-questions-01.html
 
 # Redis数据结构类型
+
+## 5种基本类型
+
+### String
+
+String 是一种二进制安全的数据类型，可以用来存储任何类型的数据比如字符串、整数、浮点数、图片（图片的 base64 编码或者解码或者图片的路径）、序列化后的对象。
+
+#### 应用场景
+
+**需要存储常规数据的场景**
+
+- 举例：缓存 Session、Token、图片地址、序列化后的对象(相比较于 Hash 存储更节省内存)。
+- 相关命令：`SET`、`GET`。
+
+**需要计数的场景**
+
+- 举例：用户单位时间的请求数（简单限流可以用到）、页面单位时间的访问数。
+- 相关命令：`SET`、`GET`、 `INCR`、`DECR` 。
+
+### List
+
+Redis 的 List 的实现为一个 **双向链表**，可以支持反向查找和遍历。
+
+#### 应用场景
+
+**信息流展示**
+
+- 举例：最新文章、最新动态。
+- 相关命令：`LPUSH`、`LRANGE`。
+
+### Set
+
+Redis 中的 Set 类型是一种无序集合，集合中的元素没有先后顺序但都唯一。可以基于 Set 轻易实现交集、并集、差集的操作。
+
+**需要存放的数据不能重复的场景**
+
+- 举例：网站 UV 统计（数据量巨大的场景还是 `HyperLogLog`更适合一些）、文章点赞、动态点赞等场景。
+- 相关命令：`SCARD`（获取集合数量） 。
+
+**需要获取多个数据源交集、并集和差集的场景**
+
+- 举例：共同好友(交集)、共同粉丝(交集)、共同关注(交集)、好友推荐（差集）、音乐推荐（差集）、订阅号推荐（差集+交集） 等场景。
+- 相关命令：`SINTER`（交集）、`SINTERSTORE` （交集）、`SUNION` （并集）、`SUNIONSTORE`（并集）、`SDIFF`（差集）、`SDIFFSTORE` （差集）。
+
+**需要随机获取数据源中的元素的场景**
+
+- 举例：抽奖系统、随机点名等场景。
+- 相关命令：`SPOP`（随机获取集合中的元素并移除，适合不允许重复中奖的场景）、`SRANDMEMBER`（随机获取集合中的元素，适合允许重复中奖的场景）。
+
+### Hash
+
+Redis 中的 Hash 是一个 String 类型的 field-value（键值对） 的映射表
+
+对于同样是存储字符串，Hash与String的主要区别：
+
+1、把所有相关的值聚集到一个key中，节省内存空间；
+
+2、只使用一个key，减少key冲突；
+
+3、当需要批量获取值的时候，只需要使用一个命令，减少内存/IO/CPU的消耗
+
+当然Hash也不是随意可以使用的，在以下场景便不适合使用：
+
+1、**field不能单独设置过期时间，只能对key设置过期时间**，所以，过期时当前key下所有field的数据全部过期；
+
+2、没有bit操作(位运算)；
+
+3、需要考虑数据量分布的问题（value值非常大的时候，无法分布到多个节点）；
+
+#### 具体数据结构
+
+类似jdk1.7的HashMap
+外层的redis K-V用到了HashTable，而内层的Hash数据类型(即redis key的value值为hash类型)，可以使用ziplist和hashtable实现。
+
+##### ziplist
+
+ziplist存储时用的是一段连续分配的内存空间，和hashtable相比使用的内存更少，和linkList相比效率更高
+
+```text
+同时满足以下条件时使用ziplist：
+1. 哈希对象保存的所有键值的字符串长度小于64字节；
+2. 哈希对象保存的键值对数量小于512个；
+```
+
+![img](https://img.lazysun.me/202310161614026.png)
+
+添加新kv的时候会添加到压缩队列表尾
+
+##### hashtable
+
+![img](https://img.lazysun.me/202310161616851.png)
+
+###### 哈希表
+
+size: 哈希表大小
+
+sizemask：size-1，用于对hash过的值进行取模
+
+used：value个数
+
+###### 字典
+
+```c
+typedef struct dict {
+    dictType *type;                        // 和类型相关的处理函数
+    void *privdata;                        // 上述类型函数对应的可选参数
+    dictht ht[2];                          // 两张哈希表，ht[0]为原生哈希表，ht[1]为 rehash 哈希表
+    long rehashidx;                        // 当等于-1时表示没有在 rehash，否则表示 rehash 的下标
+    int iterators;                         // 迭代器数量(暂且不谈)
+} dict;
+```
+
+hash函数与jdk1.7的hashmap类似
+
+插入键值对时会判断是否正在rehash，根据是否在 rehash 选择对应的哈希表，分配哈希表节点 dictEntry 的内存空间，执行插入，插入操作始终在链表头插入。
+
+**渐进式rehash**
+
+扩展或者收缩哈希表的时候，需要将 ht[0] 里面所有的键值对 rehash 到 ht[1] 里，当键值对数量非常多的时候，这个操作如果在一帧内完成，大量的计算很可能导致服务器宕机，所以不能一次性完成，需要渐进式的完成。
+
+渐进式 rehash 的详细步骤如下：
+
+1. 为 ht[1] 分配指定空间，让字典同时持有 ht[0] 和 ht[1] 两个哈希表；
+2. 将 rehashidx 设置为0，表示正式开始 rehash。
+3. 在进行 rehash 期间，每次对字典执行 增、删、改、查操作时，程序除了执行指定的操作外，还会将 哈希表 ht[0].table中下标为 rehashidx 位置上的所有的键值对 全部迁移到 ht[1].table 上，完成后 rehashidx 自增。
+4. 最后，当 ht[0].used 变为0时，代表所有的键值对都已经从 ht[0] 迁移到 ht[1] 了，释放 ht[0].table， 并且将 ht[0] 设置为 ht[1]，rehashidx 标记为 -1 代表 rehash 结束。
+
+#### 应用场景
+
+**可用于对象存储**
+
+### Sorted Set
+
+Sorted Set 类似于 Set，但和 Set 相比，Sorted Set 增加了一个权重参数 `score`，使得集合中的元素能够按 `score` 进行有序排列，还可以通过 `score` 的范围来获取元素的列表。
+
+#### 具体实现
+
+字典+跳跃表
+
+#### 应用场景
+
+**需要随机获取数据源中的元素根据某个权重进行排序的场景**
+
+- 举例：各种排行榜比如直播间送礼物的排行榜、朋友圈的微信步数排行榜、王者荣耀中的段位排行榜、话题热度排行榜等等。
+- 相关命令：`ZRANGE` (从小到大排序)、 `ZREVRANGE` （从大到小排序）、`ZREVRANK` (指定元素排名)。
+
+**需要存储的数据有优先级或者重要程度的场景** 比如优先级任务队列。
+
+- 举例：优先级任务队列。
+- 相关命令：`ZRANGE` (从小到大排序)、 `ZREVRANGE` （从大到小排序）、`ZREVRANK` (指定元素排名)。
+
+Sorted Set 类似于 Set，但和 Set 相比，Sorted Set 增加了一个权重参数 `score`，使得集合中的元素能够按 `score` 进行有序排列，还可以通过 `score` 的范围来获取元素的列表。
+
+# Redis 生产问题
 
 待更新.....
