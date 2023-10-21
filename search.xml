@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>浅谈我为什么要设计一个IM系统</title>
+      <link href="/p/1893.html"/>
+      <url>/p/1893.html</url>
+      
+        <content type="html"><![CDATA[<h1 id="浅谈我为什么要设计一个IM系统"><a href="#浅谈我为什么要设计一个IM系统" class="headerlink" title="浅谈我为什么要设计一个IM系统"></a>浅谈我为什么要设计一个IM系统</h1><h2 id="想法的萌发"><a href="#想法的萌发" class="headerlink" title="想法的萌发"></a>想法的萌发</h2><p>我曾经负责的一个学校项目因为使用人数增多，系统负载太高，当学生开始上实验课时，系统有一定几率会出现各种问题，如CPU过高，响应速度变慢等，于是，为了日后支撑更高的访问量，我尝试着将该微服务横向扩展，即部署集群服务。</p><p>在此期间，因为之前一直是单机部署，所以代码有不少都没有考虑到微服务会出现的情况。这是我在部署集群时遇到的一个难点之一，特别是测验模块中的websocket，如果集群部署的话，那么多个实例中的不同session就无法进行通信。于是，我开始寻找解决方案。寻找途中，我被 <a href="http://www.52im.net/">即时通讯网 - 即时通讯开发者社区! (52im.net)</a> 中的内容所吸引，从里面了解到了长连接通信中可能会出现的各种问题。此时，想尝试写一个IM系统的种子已然在心中萌发。</p><h2 id="为什么要开始做IM项目"><a href="#为什么要开始做IM项目" class="headerlink" title="为什么要开始做IM项目"></a>为什么要开始做IM项目</h2><p>在看完 52im 网各方大佬的帖子后，我就觉得IM并不是一个容易的项目，恰恰相反，它的功能虽然简单，但是实现起来要考虑的却非常多。在国内IM产品中，哪怕QQ，微信等一直被人所贬低，但是毫无疑问，作为一个即时通讯软件，它们都是很优秀的。虽然从大一开始学习JAVA，也开发和维护了一些项目，但是却一直未从零开始设计并实现一个完整可用的系统。对于现在的我来说，IM项目是具有一定的挑战性的，因此我希望能借此项目提高我的技术，并在github上开源，熟悉github的操作流程。</p><h2 id="IM即时通讯的难点及挑战"><a href="#IM即时通讯的难点及挑战" class="headerlink" title="IM即时通讯的难点及挑战"></a>IM即时通讯的难点及挑战</h2><h3 id="前端问题"><a href="#前端问题" class="headerlink" title="前端问题"></a>前端问题</h3><p>作为一名后端开发人员，我对前端并没有深入了解。若是只论普通写个demo小页面，还勉强能有个形状，但是像这种要求比较高的，就属实无能为力了。不过还好有一个资深前端大佬帮忙😋，才能让这个IM项目能有个好看的界面。但即使这样，作为IM客户端，功能实现起来也不是一件容易事。另一方面，因为我们对PC，IOS，Android端都不甚了解，因此目前只有web端。</p><h3 id="IM性能问题"><a href="#IM性能问题" class="headerlink" title="IM性能问题"></a>IM性能问题</h3><p>一套成熟的IM系统，毫无疑问是要顶住高并发量的，同时要保证消息的实时性，可靠性，一致性，幂等性。比如在一个群聊中，用户发的消息要保证能发送到每一位群成员手上，不丢消息，延迟低而且消息不能乱序，同时在弱网环境下，也不能出现消息重传导致接收者接收到多条同样的消息。这些实现起来都是有一定难度的。</p><h3 id="功能问题"><a href="#功能问题" class="headerlink" title="功能问题"></a>功能问题</h3><p>如果设计出来的IM系统仅仅只有文本聊天功能，那毫无疑问是一个很无趣的系统。因此，在聊天频道中，图片，语音，文件，表情包等，都可以成为一种需求。而要如何存储，如何展示，这也是难点之一。</p><h2 id="记录下自己完成该IM项目的过程"><a href="#记录下自己完成该IM项目的过程" class="headerlink" title="记录下自己完成该IM项目的过程"></a>记录下自己完成该IM项目的过程</h2><p>在飞书知识库中写下IM项目的项目文档，这也算是项目的一个发展路程。</p><p>同时，接下来也会在博客上继续记录开发开发过程。</p><h2 id="项目地址"><a href="#项目地址" class="headerlink" title="项目地址"></a>项目地址</h2><p>团队：<a href="https://github.com/AnyTopVv">AnyTopVv (github.com)</a> 团队名是基于某几个有意义的词组成的🤗</p><p>项目命名：ATVV-IM</p><p>前端地址：<a href="https://github.com/AnyTopVv/atvv-im-frontend">AnyTopVv&#x2F;atvv-im-frontend: atvv-im前端仓库 (github.com)</a></p><p>后端地址：<a href="https://github.com/AnyTopVv/atvv-im">AnyTopVv&#x2F;atvv-im (github.com)</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> IM </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 浅谈系列 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>redis日常学习(持续更新)</title>
       <link href="/p/1893.html"/>
       <url>/p/1893.html</url>
