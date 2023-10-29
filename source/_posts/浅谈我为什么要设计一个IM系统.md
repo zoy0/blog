@@ -7,7 +7,7 @@ description: 本文讲诉我是为什么要设计，并将IM系统作为我项�
 tags:
   - 浅谈系列
 title: 浅谈我为什么要设计一个IM系统
-top_img: 'https://img.lazysun.me/202302152349787.png'
+top_img: 'https://img.lazysun.me/202310291105487.webp'
 cover: 'https://img.lazysun.me/202310212220891.jpg'
 updated:
 aplayer:
