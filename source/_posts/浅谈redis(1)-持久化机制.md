@@ -1,14 +1,14 @@
 ---
-abbrlink: 
+abbrlink: e169
 categories:
   - - note
-cover: 
 description: redis持久化
 tags:
   - redis
 title: 浅谈redis(1)-持久化机制
 top_img: 'https://img.lazysun.me/202307301447764.jpg'
 date: 2023-12-13 15:59:24
+cover: 'https://img.lazysun.me/202312131619938.webp'
 updated:aplayer:
 aside:
 comments:
