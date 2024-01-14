@@ -25,7 +25,7 @@ type:
 
 继 [服务器监控系统 | lazysun](https://lazysun.me/p/f651.html) ，这次需要设置告警，提前预警可能出现的错误。
 
-## docker安装node-exporter，node-exporter，cadvisor
+## docker安装node-exporter，nprometheus，cadvisor
 
 docker-compose.yaml
 
@@ -53,7 +53,7 @@ services:
     networks:
       - monitoring
 
-  node-exporter:
+  prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
     restart: unless-stopped
